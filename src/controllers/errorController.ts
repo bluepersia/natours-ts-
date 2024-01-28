@@ -11,6 +11,10 @@ export default function (err:Error, req:Request, res:Response, next:Function) : 
             err = handleDuplicateErrorDb (err as DuplicateError);
         else if (err.name === 'ValidationError')
             err = new AppError (err.message, 400);
+        else if (err.name === 'JsonWebTokenError')
+            err = new AppError ('Invalid token', 401);
+        else if (err.name === 'TokenExpiredError')
+            err = new AppError ('Token has expired', 401);
     }
 
     let status = 'error';
