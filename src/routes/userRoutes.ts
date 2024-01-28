@@ -2,16 +2,20 @@ import express from 'express';
 const router = express.Router ();
 import userController = require ('../controllers/userController');
 import authController = require ('../controllers/authController');
+import multer from 'multer';
+const upload = multer ();
 
-router.post ('/signup', authController.signup);
-router.post ('/login', authController.login);
+router.post ('/signup', upload.none (), authController.signup);
+router.post ('/login', upload.none(), authController.login);
 
-router.post ('/forgot-password', authController.forgotPassword);
-router.patch ('/reset-password/:token', authController.resetPassword);
+router.post ('/forgot-password', upload.none(), authController.forgotPassword);
+router.patch ('/reset-password/:token', upload.none(), authController.resetPassword);
 
 router.use (authController.protect);
 
-router.patch ('/update-password', authController.updatePassword);
+router.patch ('/update-password', upload.none(), authController.updatePassword);
+
+router.patch ('/update-me', upload.none(), userController.updateMe);
 
 router.use (authController.restrictTo ('admin'));
 
