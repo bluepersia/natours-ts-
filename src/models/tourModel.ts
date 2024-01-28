@@ -1,5 +1,5 @@
 import {Schema, model} from 'mongoose';
-
+import slugify from 'slugify';
 
 export interface ITour 
 {
@@ -80,6 +80,11 @@ const tourSchema = new Schema<ITour>({
     startDates: [Date]
 })
 
+tourSchema.pre ('save', function(next) : void
+{
+    this.slug = slugify (this.name, {lower:true});
+    next ();
+});
 
 const Tour =  model ('Tour', tourSchema);
 
