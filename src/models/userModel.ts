@@ -1,4 +1,4 @@
-import { Schema, model} from 'mongoose';
+import { Query, Schema, model} from 'mongoose';
 import validator from 'validator'
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -14,6 +14,7 @@ export interface IUser
     passwordChangedAt:Date,
     passwordResetToken:string | undefined,
     passwordResetExpires:Date | undefined,
+    active:boolean,
     comparePassword: (s:string, hash:string) => Promise<boolean>,
     hasPasswordChangedSince: (time:number) => boolean,
     genPasswordResetToken: () => string
@@ -61,9 +62,20 @@ const userSchema = new Schema<IUser>({
             message: 'Passwords must match!'
         }
     },
-    passwordChangedAt: Date
+    passwordChangedAt: Date,
+    passwordResetToken:String,
+    passwordResetExpires:Date,
+    active: {
+        type:Boolean,
+        default: true
+    }
 })
 
+userSchema.pre (/^find/, function (next): void 
+{
+    (this as Query<any,any>).find ({active: { $ne: false}})
+    next ();
+});
 
 userSchema.pre ('save', async function (next):Promise<void>
 {
