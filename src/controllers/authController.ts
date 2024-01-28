@@ -6,6 +6,7 @@ import { Request, Response } from 'express';
 import AppError from '../utility/AppError';
 const util  = require ('util');
 import Email from '../utility/Email';
+import crypto from 'crypto';
 
 function signToken (id:string) : string 
 {
@@ -133,4 +134,26 @@ export const forgotPassword = handle (async(req:Request, res:Response) : Promise
         status: 'success',
         message: "Token was sent!"
     })
+});
+
+
+export const resetPassword = handle (async (req:Request, res:Response) : Promise<void> =>
+{
+    const hashedToken = crypto.createHash ('sha256').update (req.params.token).digest ('hex');
+
+    const user = await User.findOne ({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {$gt:Date.now()}
+    })
+
+    if (!user)
+        throw new AppError ('Token is invalid or has expired', 400);
+
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save ();
+
+    signSend (user, res);
 });

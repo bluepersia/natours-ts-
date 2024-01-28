@@ -12,8 +12,8 @@ export interface IUser
     password:string | undefined,
     passwordConfirm:string | undefined,
     passwordChangedAt:Date,
-    passwordResetToken:string,
-    passwordResetExpires:Date,
+    passwordResetToken:string | undefined,
+    passwordResetExpires:Date | undefined,
     comparePassword: (s:string, hash:string) => Promise<boolean>,
     hasPasswordChangedSince: (time:number) => boolean,
     genPasswordResetToken: () => string
