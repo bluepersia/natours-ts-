@@ -6,6 +6,8 @@ import authController = require ('../controllers/authController');
 router.post ('/signup', authController.signup);
 router.post ('/login', authController.login);
 
+router.post ('/forgot-password', authController.forgotPassword);
+
 router.use (authController.protect);
 
 router.use (authController.restrictTo ('admin'));
