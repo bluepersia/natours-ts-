@@ -55,7 +55,7 @@ export const login = handle (async (req:Request, res:Response) : Promise<void> =
     if (!email || !password)
         throw new AppError ('Please provide email and password', 400);
 
-    const user = await User.findOne ({email}).select ('+password');
+    const user = await User.findOne ({email});
 
     if (!user)
         throw new AppError ('No user with this email', 404);
@@ -161,7 +161,10 @@ export const resetPassword = handle (async (req:Request, res:Response) : Promise
 
 export const updatePassword = handle (async (req:IRequest, res:Response) : Promise<void> =>
 {
-    const { user } = req;
+    const user = await User.findById (req.user.id).select ('+password');
+
+    if (!user)
+        throw new AppError ('User does not exist', 404);
 
     if (!(await user.comparePassword (req.body.passwordCurrent, user.password!)))
         throw new AppError ('Password incorrect', 401);
