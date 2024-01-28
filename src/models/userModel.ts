@@ -11,7 +11,8 @@ export interface IUser
     password:string | undefined,
     passwordConfirm:string | undefined,
     passwordChangedAt:Date,
-    comparePassword: (s:string, hash:string) => Promise<boolean>
+    comparePassword: (s:string, hash:string) => Promise<boolean>,
+    hasPasswordChangedSince: (time:number) => boolean
 }
 
 
@@ -77,6 +78,11 @@ userSchema.pre ('save', async function (next):Promise<void>
 userSchema.methods.comparePassword = async function (s:string, hash:string) : Promise<boolean>
 {
     return await bcrypt.compare (s, hash);
+}
+
+userSchema.methods.hasPasswordChangedSince = function (time:number) : boolean
+{
+    return this.passwordChangedAt && this.passwordChangedAt >= time;
 }
 
 const User = model ('User', userSchema);
