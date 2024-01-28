@@ -2,8 +2,11 @@ import express from 'express';
 const app = express ();
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
+import cookies from 'cookie-parser'
 import globalErrorHandler from './controllers/errorController';
 import AppError from './utility/AppError';
+
+app.use (cookies ());
 
 app.use (express.json ({limit:'10kb'}));
 
