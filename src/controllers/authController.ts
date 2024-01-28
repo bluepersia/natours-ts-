@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import AppError from '../utility/AppError';
 const util  = require ('util');
+import Email from '../utility/Email';
 
 function signToken (id:string) : string 
 {
@@ -107,3 +108,29 @@ export const restrictTo = function (...roles:string[])
             next ();
     }
 }
+
+
+export const forgotPassword = handle (async(req:Request, res:Response) : Promise<void> =>
+{
+    const user = await User.findOne ({email: req.body.email});
+
+    if (!user)
+        throw new AppError ('No user with that ID', 404);
+
+    const resetToken = user.genPasswordResetToken ();
+    user.save ({validateBeforeSave: false});
+
+    const resetUrl = `${process.env.HOME_URL}/reset-password?token=${resetToken}`;
+
+    try {
+        await new Email (user, {url:resetUrl}).sendResetPassword ();
+    }
+    catch {
+        throw new AppError ('Something went wrong sending mail. Please try again later.', 500);
+    }
+
+    res.status (200).json ({
+        status: 'success',
+        message: "Token was sent!"
+    })
+});

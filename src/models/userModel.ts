@@ -1,6 +1,7 @@
 import { Schema, model} from 'mongoose';
 import validator from 'validator'
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export interface IUser 
 {
@@ -11,8 +12,11 @@ export interface IUser
     password:string | undefined,
     passwordConfirm:string | undefined,
     passwordChangedAt:Date,
+    passwordResetToken:string,
+    passwordResetExpires:Date,
     comparePassword: (s:string, hash:string) => Promise<boolean>,
-    hasPasswordChangedSince: (time:number) => boolean
+    hasPasswordChangedSince: (time:number) => boolean,
+    genPasswordResetToken: () => string
 }
 
 
@@ -83,6 +87,16 @@ userSchema.methods.comparePassword = async function (s:string, hash:string) : Pr
 userSchema.methods.hasPasswordChangedSince = function (time:number) : boolean
 {
     return this.passwordChangedAt && this.passwordChangedAt >= time;
+}
+
+userSchema.methods.genPasswordResetToken = function () : string
+{
+    const resetToken = crypto.randomBytes (32).toString ('hex');
+
+    this.passwordResetToken = crypto.createHash ('sha256').update (resetToken).digest ('hex');
+    this.passwordResetExpires = (Date.now() + (7 * 24 * 60 * 60 * 1000));
+
+    return resetToken;
 }
 
 const User = model ('User', userSchema);
