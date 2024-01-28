@@ -3,6 +3,7 @@ import { HydratedDocument } from 'mongoose';
 import User, { IUser } from '../models/userModel';
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
+import AppError from '../utility/AppError';
 
 function signToken (id:string) : string 
 {
@@ -41,4 +42,23 @@ export const signup = handle (async (req:Request, res:Response) : Promise<void> 
     const user = await User.create ({email, name, password, passwordConfirm});
 
     signSend (user, res, 201);
+});
+
+
+export const login = handle (async (req:Request, res:Response) : Promise<void> =>
+{
+    const {email, password} = req.body;
+
+    if (!email || !password)
+        throw new AppError ('Please provide email and password', 400);
+
+    const user = await User.findOne ({email}).select ('+password');
+
+    if (!user)
+        throw new AppError ('No user with this email', 404);
+
+    if (!(await user.comparePassword (password, user.password!)))
+        throw new AppError ('Password is incorrect', 401);
+
+    signSend (user, res);
 });
