@@ -1,13 +1,17 @@
 import { Request, Response } from "express";
 import { Model } from "mongoose";
+import APIFeatures from "../utility/APIFeatures";
 const handle = require ('express-async-handler')
 
 export const getAll = (Model:Model<any>) => handle (async (req:Request, res:Response) : Promise<void> => 
 {
-    const docs = await Model.find ();
+    const query = Model.find ();
+    new APIFeatures (req.query, query).all ();
+    const docs = await query;
 
     res.status (200).json ({
         status: 'success',
+        result: docs.length,
         data: {
             docs
         }
