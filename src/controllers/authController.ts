@@ -95,3 +95,15 @@ export const protect = handle (async (req:IRequest, res:Response, next:() => voi
     next ();
 
 });
+
+
+export const restrictTo = function (...roles:string[]) 
+{
+    return function (req:Request, res:Response, next: () => void)
+    {
+        if (!roles.includes ((req as IRequest).user.role))
+            throw new AppError ('You do not have permission', 403);
+
+            next ();
+    }
+}
