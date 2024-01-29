@@ -1,7 +1,9 @@
 import { Response } from 'express';
 import Tour from '../models/tourModel';
+import Booking, { IBooking } from '../models/bookingModel';
 import AppError from '../utility/AppError';
 import { IRequest } from './authController';
+import { HydratedDocument } from 'mongoose';
 const stripe = require ('stripe')(process.env.STRIPE_SECRET_KEY);
 const handle = require ('express-async-handler');
 
@@ -41,5 +43,23 @@ export const getStripeCheckoutSession = handle (async (req:IRequest, res:Respons
     res.status (200).json ({
         status: 'success',
         session
+    })
+});
+
+
+export const myBookings = handle (async(req:IRequest, res:Response): Promise<void> =>
+{
+    const bookings = await Booking.find ({user: req.user.id});
+
+    const tourPromises = bookings.map (async (booking:HydratedDocument<IBooking>) => await Tour.findById (booking.tour));
+
+    const tours = await Promise.all (tourPromises);
+
+    res.status (200).json ({
+        status: 'success',
+        result: tours.length,
+        data: {
+            tours
+        }
     })
 });
