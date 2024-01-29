@@ -4,8 +4,15 @@ import Booking, { IBooking } from '../models/bookingModel';
 import AppError from '../utility/AppError';
 import { IRequest } from './authController';
 import { HydratedDocument } from 'mongoose';
+import factory = require ('./factory');
 const stripe = require ('stripe')(process.env.STRIPE_SECRET_KEY);
 const handle = require ('express-async-handler');
+
+export const getAllBookings = factory.getAll (Booking);
+export const createBooking = factory.createOne (Booking);
+export const getBooking = factory.getOne (Booking);
+export const updateBooking = factory.updateOne (Booking);
+export const deleteBooking = factory.deleteOne (Booking);
 
 
 export const getStripeCheckoutSession = handle (async (req:IRequest, res:Response) : Promise<void> =>
