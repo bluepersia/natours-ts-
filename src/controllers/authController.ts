@@ -55,7 +55,7 @@ export const login = handle (async (req:Request, res:Response) : Promise<void> =
     if (!email || !password)
         throw new AppError ('Please provide email and password', 400);
 
-    const user = await User.findOne ({email});
+    const user = await User.findOne ({email}).select ('+password');
 
     if (!user)
         throw new AppError ('No user with this email', 404);

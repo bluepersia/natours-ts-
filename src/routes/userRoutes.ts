@@ -18,7 +18,7 @@ router.use (authController.protect);
 
 router.patch ('/update-password', upload.none(), authController.updatePassword);
 
-router.patch ('/update-me', upload.none(), userController.updateMe);
+router.patch ('/update-me', userController.uploadPhoto, userController.processPhoto, userController.updateMe);
 router.delete ('/delete-me', userController.deleteMe);
 
 router.get ('/me', userController.getMe);
@@ -26,6 +26,6 @@ router.get ('/me', userController.getMe);
 router.use (authController.restrictTo ('admin'));
 
 router.route ('/').get (userController.getAllUsers).post (userController.createUser);
-router.route ('/:id').get (userController.getUser).patch (userController.updateUser, userController.uploadPhoto, userController.processPhoto).delete (userController.deleteUser);
+router.route ('/:id').get (userController.getUser).patch (userController.uploadPhoto, userController.processPhoto, userController.updateUser).delete (userController.deleteUser);
 
 export default router;

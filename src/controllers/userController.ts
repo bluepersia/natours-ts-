@@ -86,5 +86,7 @@ export const processPhoto = handle (async (req:IRequest, res:Response, next:() =
     .resize (500, 500)
     .toFormat ('jpeg')
     .jpeg ({quality:100})
-    .toFile (`/public/img/users/${req.body.photo}`);
+    .toFile (`public/img/users/${req.body.photo}`);
+
+    next ();
 });
