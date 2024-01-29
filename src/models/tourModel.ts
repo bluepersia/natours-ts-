@@ -1,5 +1,6 @@
-import {Schema, model} from 'mongoose';
+import {HydratedDocument, Query, Schema, Types, model} from 'mongoose';
 import slugify from 'slugify';
+import { IUser } from './userModel';
 
 export interface ITour 
 {
@@ -30,7 +31,8 @@ export interface ITour
         address:string,
         description:string,
         day:number
-    }]
+    }],
+    guides: Types.ObjectId[] | HydratedDocument<IUser>[]
 }
 
 const tourSchema = new Schema<ITour>({
@@ -111,8 +113,20 @@ const tourSchema = new Schema<ITour>({
         address:String,
         description:String,
         day:Number
+    }],
+    guides: [{
+        type: Schema.ObjectId,
+        ref: 'User'
     }]
 })
+
+tourSchema.pre (/findOne$/, function (next): void{
+    (this as Query<any,any>).populate ({
+        path: 'guides',
+        select: 'name photo role'
+    })
+    next ();
+});
 
 tourSchema.pre ('save', function(next) : void
 {
