@@ -17,7 +17,20 @@ export interface ITour
     imageCover:string,
     images: [string],
     createdAt:Date,
-    startDates:[Date]
+    startDates:[Date],
+    startLocation: {
+        type:string,
+        coordinates:number[],
+        address:string,
+        description:string
+    },
+    locations: [{
+        type:string,
+        coordinates:number[],
+        address:string,
+        description:string,
+        day:number
+    }]
 }
 
 const tourSchema = new Schema<ITour>({
@@ -77,7 +90,28 @@ const tourSchema = new Schema<ITour>({
     },
     images: [String],
     createdAt: Date,
-    startDates: [Date]
+    startDates: [Date],
+    startLocation: {
+        type: {
+            type:String,
+            default:'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address:String,
+        description:String
+    },
+    locations: [{
+        type: {
+            type:String,
+            default:'Point',
+            enum: ['Point']
+        },
+        coordinates: [Number],
+        address:String,
+        description:String,
+        day:Number
+    }]
 })
 
 tourSchema.pre ('save', function(next) : void
