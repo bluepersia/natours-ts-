@@ -1,15 +1,18 @@
 import express from 'express';
 const app = express ();
-import tourRouter from './routes/tourRoutes';
-import userRouter from './routes/userRoutes';
-import reviewRouter from './routes/reviewRoutes';
-import bookingRouter from './routes/bookingRoutes';
+
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 const xss = require ('xss-clean')
 import hpp from 'hpp';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression'
 import cookies from 'cookie-parser'
+import bookingController = require ('./controllers/bookingController');
+import tourRouter from './routes/tourRoutes';
+import userRouter from './routes/userRoutes';
+import reviewRouter from './routes/reviewRoutes';
+import bookingRouter from './routes/bookingRoutes';
 import globalErrorHandler from './controllers/errorController';
 import AppError from './utility/AppError';
 
@@ -29,7 +32,11 @@ app.use (rateLimit ({
     message: 'Exceeded the rate limit'
 }))
 
+app.use (compression ());
+
 app.use (cookies ());
+
+app.post ('/stripe-webhook', express.raw ({type: 'application/json'}), bookingController.stripeWebHook);
 
 app.use (express.json ({limit:'10kb'}));
 

@@ -1,10 +1,11 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import Tour from '../models/tourModel';
 import Booking, { IBooking } from '../models/bookingModel';
 import AppError from '../utility/AppError';
 import { IRequest } from './authController';
 import { HydratedDocument } from 'mongoose';
 import factory = require ('./factory');
+import User from '../models/userModel';
 const stripe = require ('stripe')(process.env.STRIPE_SECRET_KEY);
 const handle = require ('express-async-handler');
 
@@ -70,3 +71,41 @@ export const myBookings = handle (async(req:IRequest, res:Response): Promise<voi
         }
     })
 });
+
+
+
+export const stripeWebHook = (req:Request, res:Response) =>
+{
+    const signature = req.headers['stripe-signature'];
+
+    let event;
+    try {
+        event = stripe.webhooks.constructEvent (
+            req.body,
+            signature,
+            process.env.STRIPE_WEBHOOK_SECRET
+        )
+    }
+    catch (err){
+        return res.status (400).send (`Webhook error: ${(err as Error).message}`);
+    }
+
+    if (event.type === 'checkout.session.completed')
+        createBookingCheckout (event.data.object);
+
+
+};
+
+async function createBookingCheckout (session:{client_reference_id:string, customer_email:string, amount_total:number})
+{
+    const user = await User.findOne ({email: session.customer_email});
+
+    if (!user)
+        throw new AppError ('No user with this email', 404);
+
+    await Booking.create ({
+        user: user.id,
+        tour: session.client_reference_id,
+        price: session.amount_total / 100
+    })
+}
