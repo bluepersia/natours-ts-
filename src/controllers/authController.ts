@@ -85,7 +85,7 @@ export const protect = handle (async (req:IRequest, res:Response, next:() => voi
 
     const decoded = await util.promisify (jwt.verify)(token, process.env.JWT_SECRET);
 
-    const user = await User.findById (decoded.id).select ('+password');
+    const user = await User.findById (decoded.id);
 
     if (!user)
         throw new AppError ('The user this token belongs to no longer exists.', 401);

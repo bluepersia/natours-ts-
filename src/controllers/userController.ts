@@ -43,3 +43,16 @@ export const deleteMe = handle (async (req:IRequest, res:Response) : Promise<voi
         data: null
     })
 });
+
+
+export const getMe = handle ((req:IRequest, res:Response) : void =>
+{
+    const { user} = req;
+
+    res.status (200).json ({
+        status: 'success',
+        data: {
+            user
+        }
+    })
+});
