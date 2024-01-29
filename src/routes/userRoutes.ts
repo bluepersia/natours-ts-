@@ -21,6 +21,8 @@ router.patch ('/update-password', upload.none(), authController.updatePassword);
 router.patch ('/update-me', upload.none(), userController.updateMe);
 router.delete ('/delete-me', userController.deleteMe);
 
+router.get ('/me', userController.getMe);
+
 router.use (authController.restrictTo ('admin'));
 
 router.route ('/').get (userController.getAllUsers).post (userController.createUser);
