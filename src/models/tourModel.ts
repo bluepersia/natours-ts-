@@ -1,6 +1,7 @@
 import {HydratedDocument, Query, Schema, Types, model} from 'mongoose';
 import slugify from 'slugify';
 import { IUser } from './userModel';
+import Review from './reviewModel';
 
 export interface ITour 
 {
@@ -129,6 +130,7 @@ tourSchema.virtual('reviews', {
     foreignField: 'tour',
     localField: '_id'
 })
+
 
 
 tourSchema.pre (/findOne$/, function (next): void{
