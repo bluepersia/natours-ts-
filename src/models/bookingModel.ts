@@ -1,4 +1,4 @@
-import {HydratedDocument, Schema, model} from 'mongoose';
+import {HydratedDocument, Query, Schema, model} from 'mongoose';
 import { ITour } from './tourModel';
 import { IUser } from './userModel';
 
@@ -37,6 +37,11 @@ const bookingSchema = new Schema<IBooking> ({
     }
 })
 
+bookingSchema.pre (/^find/, function (next) : void
+{
+    (this as Query<any,any>).populate ('user').populate ('tour');
+    next ();
+})
 
 const Booking = model ('Booking', bookingSchema);
 
